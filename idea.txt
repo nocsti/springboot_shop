@@ -1,0 +1,6 @@
+ctrl+r	当前文件内容替换
+shift+F6 重命名
+alt+enter 添加建议
+
+ctrl+alt+l 全部格式化
+alt+enter 导包

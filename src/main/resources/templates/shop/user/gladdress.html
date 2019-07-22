@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title th:text="'收货地址 - ' + ${webName}"></title>
+    <head th:include="/shop/common::head"></head>
+    <style>
+        .address-cz a{ cursor: pointer; }
+    </style>
+</head>
+<body>
+<head th:include="/shop/common::tip"></head>
+<head th:include="/shop/common::dlg"></head>
+<header data-am-widget="header" class="am-header am-header-default sq-head ">
+    <div class="am-header-left am-header-nav">
+        <a href="javascript:history.back()" class="">
+            <i class="am-icon-chevron-left"></i>
+        </a>
+    </div>
+    <h1 class="am-header-title">
+        <a href="" class="">管理收货地址</a>
+    </h1>
+    <div class="am-header-right am-header-nav">
+        <a onclick="addrAdd();" class="">
+            <i class="am-icon-plus"></i>
+        </a>
+    </div>
+</header>
+<div style="height: 49px;"></div>
+<ul class="address-list addrListTpl">
+    <li class="curr" style="display: none;">
+        <p>收货人：徐女士&nbsp;&nbsp;182********</p>
+        <p class="order-add1">收货地址：江西省南昌市 青云谱区解放西路258号江西省南昌市 青云谱区解放西路258号1</p>
+        <hr />
+        <div class="address-cz">
+            <label onclick="addrSetDef(this);" class="am-radio am-warning">
+                <input type="radio" name="radio3" value="" data-am-ucheck > 设为默认
+            </label>
+            <a onclick="addrEdit(this);"><img src="/static/shop/img/bj.png" width="18" />&nbsp;编辑</a>
+            <a onclick="addrDel(this);">删除</a>
+        </div>
+    </li>
+</ul>
+
+<div th:include="/shop/common::foot"></div>
+
+</body>
+
+<script id="addrListTpl" type="text/template">
+    {{if $data.length == 0}}
+    <p style="text-align: center;">点击右上角新建一个收货地址吧！</p>
+    {{else}}
+    {{each $data as item}}
+    <li class="addr_{{item.id }} {{if item.def == 1}}curr{{/if}}">
+        <p>收货人：{{item.consignee }}&nbsp;&nbsp;{{item.mobile }}</p>
+        <p class="order-add1">收货地址：{{item.address }}</p>
+        <hr />
+        <div class="address-cz">
+            <label class="am-radio am-warning">
+                <input type="radio" name="radio3" value="1" onclick="addrSetDef({{item.id }})" {{if item.def == 1}}checked="true"{{/if}}> 设为默认
+            </label>
+            <a onclick="addrEdit({{item.id }});"><img src="/static/shop/img/bj.png" width="18" />&nbsp;编辑</a>
+            <a onclick="addrDel({{item.id }});">删除</a>
+        </div>
+    </li>
+    {{/each}}
+    {{/if}}
+</script>
+<script id="addrEditTpl" type="text/template">
+    <form onsubmit="return false;" style="text-align: left;">
+        <input type="hidden" name="action" value="{{$data.action }}"/>
+        <input type="hidden" name="id" value="{{$data.id }}"/>
+        <p>收货人：<input type="text" name="consignee" value="{{$data.consignee }}"/></p>
+        <p>电话：<input type="text" name="mobile" value="{{$data.mobile }}"/></p>
+        <p>收货地址：<input type="text" name="address" value="{{$data.address }}"/></p>
+        <p><button onclick="addrEditFunc(this.form);">保存</button>
+            <button onclick="dlgHide();">取消</button>
+        </p>
+    </form>
+</script>
+
+<script type="text/javascript">
+    var addrList = [];
+    function addrGetList(){
+        ajaxPost("/user/post",{action:"address"},function(res){
+            if( res.code == 1 ){
+                addrList = res.data;
+                $(".addrListTpl").html( template("addrListTpl", addrList) );
+            }
+        });
+    }
+    function addrAdd(){
+        dlgShow("addrEditTpl", {action:'addaddress',id:'',consignee:'',mobile:'',address:''} );
+    }
+    function addrEditFunc(form){
+        tipShow("正在保存地址！");
+        ajaxPost("/user/post",$(form).serialize(),function(res){
+            if( res.code === 1 ){
+                tipShow({msg:"保存成功！",btns:[{c:'dlgHide();tipHide();',t:'确定'}]});
+                addrGetList();
+            }else{
+                tipShow(res.msg);
+            }
+        });
+    }
+    function addrSetDef(id){
+        tipShow("正在设置默认地址！");
+        ajaxPost("/user/post",{action:"addresssetdef",id:id},function(res){
+            tipShow( res.msg );
+            addrGetList();
+        });
+    }
+    function addrDel(id){
+        tipShow({msg:"是否删除！",btns:[{c:'addrDelFunc();',t:'是'},{c:'tipHide();',t:'否'}]});
+    }
+    function addrDelFunc(id){
+        tipShow("正在删除！");
+        clog(id);
+    }
+    function addrEdit(id){
+        for(var i=0; i< addrList.length;i++){
+            var item = addrList[i];
+            if( item.id == id ){
+                item.action = "editaddress";
+                dlgShow("addrEditTpl", item );
+                return false;
+            }
+            clog(item);
+        }
+    }
+
+    $(function(){
+        addrGetList();
+    });
+</script>
+
+</html>

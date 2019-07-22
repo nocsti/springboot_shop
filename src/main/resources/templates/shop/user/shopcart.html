@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+	<head>
+        <title th:text="'购物车 - ' + ${webName}"></title>
+        <head th:include="/shop/common::head"></head>
+	</head>
+	<body>
+		<head th:include="/shop/common::tip"></head>
+		<header data-am-widget="header" class="am-header am-header-default sq-head ">
+			<div class="am-header-left am-header-nav">
+				<a href="javascript:history.back()" class="">
+					<i class="am-icon-chevron-left"></i>
+				</a>
+			</div>
+			<h1 class="am-header-title">
+  	            <a href="" class="">购物车</a>
+            </h1>
+	    </header>
+	    <div style="height: 49px;"></div>
+
+		<div class="cartTpl" style="height: 100%;background: #eee;"></div>
+	<script id="cartTpl" type="text/template">
+		{{if $data.length == 0}}
+	    <!--购物车空的状态-->
+	    <div class="login-logo">
+	    	<img src="/static/shop/img/logo.png">
+	    	<p>亲、您的购物车还是空空的哦，快去装满它!</p>
+	    	<a href="/" class="goshopping">前去逛逛</a>
+	    </div>
+		{{else}}
+		<form action="/user/tureorder" method="post" class="form">
+			<input type="hidden" name="buyGoodsFormType" value="cart" />
+	    <ul class="shopcart-list">
+			{{each $data as item}}
+	    	<li>
+	    		<label class="am-checkbox am-warning">
+					<input class="goodsId" type="checkbox" name="goodsId" value="{{item.goodsId }}"/>
+                </label>
+                <a href="/goods/{{item.goodsId }}"><img src="{{item.thumb }}" class="shop-pic" /></a>
+                <div class="shop-list-mid">
+                	<div class="tit"><a href="/goods/{{item.goodsId }}">{{item.name }}</a></div>
+                	<div class="d-stock">
+		                <a class="decrease" onclick="decrease(this);">-</a>
+		                <input id="num" readonly="" class="text_box" name="goodsNumber[{{item.id }}]" type="text" value="{{item.number }}" data-id="{{item.id }}">
+		                <a class="increase" onclick="increase(this);">+</a>
+                     </div>
+                </div>
+                <b class="shop-list-price" data-price="{{item.price }}">￥169 </b>
+                <div class="del" onclick="cartDel({{item.id }});"><i class="am-icon-trash"></i></div>
+	    	</li>
+			{{/each}}
+	    	<div style="height: 50px; background: #eee;"></div>
+	    </ul>
+	    <div class="shop-fix">
+	    	<label class="am-checkbox am-warning">
+               <input type="checkbox" value="" onclick="cartEleBatDel(this);">
+            </label>
+            <a class="del">删除</a>
+            <a class="js-btn" onclick="buy();">去结算</a>
+            <div class="js-text">
+            	<P>合计：<b>￥217.80</b></P>
+            	<p class="js-car">免费配送</p>
+            </div>
+	    </div>
+		</form>
+		{{/if}}
+	</script>
+
+
+        <div th:include="/shop/common::footer"></div>
+		<div th:include="/shop/common::foot"></div>
+ 
+<script>
+	//购物数量加减
+	$(function(){
+		getCart();
+	})
+
+	var page = 1;
+	function getCart(){
+		if( page == -1 ){
+			return false;
+		}
+		ajaxPost("/user/post",{action:'cart',page:page},function(res){
+			if( res.code !== 1 ){
+				return tipShow("数据获取异常,错误信息："+res.msg);
+			}
+			//  加载分页数据
+			if( res.data.currentPage == 1 ){
+				$(".cartTpl").html( template("cartTpl", res.data.items ) );
+			} else {
+				$(".cartTpl").append( template("cartTpl", res.data.items ) );
+			}
+			if( res.data.hasMore == false && res.data.total != 0 ){
+				page = -1;
+				$(".cartTpl").append("已经到底了！");
+				return false;
+			}
+			page = res.data.currentPage++;
+		});
+	}
+	function increase(self){
+		self = $(self);
+		var current_num = parseInt(self.siblings('input').val());
+		current_num += 1;
+		self.siblings('input').val(current_num);
+		update_item( self.siblings('input').data('id'), current_num );
+	}
+	function decrease(self){
+		self = $(self);
+		var current_num = parseInt(self.siblings('input').val());
+		if(current_num > 1){
+			current_num -= 1;
+			self.siblings('input').val(current_num);
+			update_item( self.siblings('input').data('id'), current_num );
+		}
+	}
+	function update_item(id,num){
+		clog( id+"/"+num );
+		tipShow("正在更新！");
+		ajaxPost("/user/post",
+				{action:'cartupdatenumber',id:id,number:num},
+				function(res){
+					tipHide();
+			});
+	}
+	function cartDel(id){
+		clog("cartDel");
+		tipShow("正在删除。。。");
+		ajaxPost("/user/post",
+				{action:'cartdelete',id:id},
+				function(res){
+					tipShow(res.msg);
+				});
+	}
+	function cartEleBatDel(ele){
+		var check = $(ele).is(":checked")?true:false;
+		$(".goodsId").each(function(index,e){
+			$(e).prop("checked", check);
+		});
+	}
+	//	提交form表格前检查数据方法
+	function buy(){
+		var form = $('form')[0];
+		var checkItem = false;
+		var dataArr = $(form).serializeArray();
+		for( var keys in dataArr){
+			var item = dataArr[keys];
+			if( item.name == "goodsId" ){
+				checkItem = true;
+				break;
+			}
+		}
+		if( !checkItem ){
+			return tipShow("请勾选需要下单的商品！");
+		}
+		$(form).submit();
+	}
+</script>
+
+	</body>
+</html>

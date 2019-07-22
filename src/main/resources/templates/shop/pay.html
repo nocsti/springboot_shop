@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title th:text="'完成支付:'+ ${order.number} +' - ' + ${webName}"></title>
+		<head th:include="/shop/common::head"></head>
+	</head>
+	<body>
+	<div th:include="/shop/common::tip"></div>
+		<header data-am-widget="header" class="am-header am-header-default sq-head ">
+			<div class="am-header-left am-header-nav">
+				<a href="javascript:history.back()" class="">
+					<i class="am-icon-chevron-left"></i>
+				</a>
+			</div>
+			<h1 class="am-header-title">
+  	            <a href="" class="">完成支付</a>
+            </h1>
+	    </header>
+	    <div style="height: 49px;"></div>
+	    <div class="order-detail" th:text="'订单提交成功，请您尽快付款：
+			订单编号：'+ ${order.number} +'，
+			您需要支付￥'+ ${order.total} +'，
+			请您在提交订单后24小时内完成付款，否则订单将自动取消'">
+	    	订单提交成功，请您尽快付款：
+			订单编号：150928292929，
+			您需要支付￥188.8，
+			请您在提交订单后xx小时内完成付款，否则订单将自动取消
+	    </div>
+	    <p class="pay-style-box">请选择以下支付方式：</p>
+	    <div class="pay-style">
+	    	<label class="am-radio am-warning">
+                <input type="radio" name="payType" value="1" data-am-ucheck checked> 支付宝
+            </label>
+            <label class="am-radio am-warning" style="margin-top: 10px;">
+                <input type="radio" name="payType" value="2" data-am-ucheck > 微信
+            </label>
+            <label class="am-radio am-warning" style="margin-top: 10px;">
+                <input type="radio" name="payType" value="3" data-am-ucheck > 支付余额
+            </label>
+	    </div>
+	    <input type="button" class="login-btn" value="确认支付" th:onclick=" 'orderPay(' + ${order.id} + ');' ">
+
+	</body>
+
+	<head th:include="/shop/common::foot"></head>
+
+<script>
+	/**
+	 * 发起支付，支付成功跳转到订单列表
+	 */
+	function orderPay(id){
+		tipShow("正在支付。。。");
+		var payType = $('input[name="payType"]:checked').val();
+		ajaxPost("/user/post",{action:'orderpay',id:id,payType:payType},function(res){
+			if( res.code == 1 ){
+				tipShow({msg:"支付成功<br>3秒后跳转到订单列表！",btns:[{c:'window.location.href = "/user/order.html";',t:'立即跳转'}]});
+				setTimeout(function(){ window.location.href = "/user/order.html"; },3000);
+			}else{
+				tipShow( res.msg );
+			}
+		});
+	}
+</script>
+</html>
