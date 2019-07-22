@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title th:text="'商品分类 - ' + ${webName}"></title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <head th:include="/shop/common::head"></head>
+
+</head>
+<body>
+<header data-am-widget="header" class="am-header am-header-default sq-head ">
+    <div class="am-header-left am-header-nav">
+        <a href="javascript:history.back()" class="">
+            <i class="am-icon-chevron-left"></i>
+        </a>
+    </div>
+    <h1 class="am-header-title">
+        <a href="" class="">商品分类</a>
+    </h1>
+</header>
+<div style="height: 49px;"></div>
+<div class="cate-search">
+    <input type="text" class="cate-input" placeholder="请输入您要的搜索的产品关键词"/>
+    <input type="button" class="cate-btn"/>
+</div>
+<div class="content-list">
+    <div class="list-left category-list">
+        <li th:each="item,itemStat : ${categorys}"
+            th:class="${itemStat.index} == 0?'current':''"
+            th:itemid="${item.id}"
+            th:itemtitle="${item.title}"
+            th:itemthumb="${item.thumb}">
+            <a th:text="${item.title}"></a>
+        </li>
+    </div>
+    <div class="list-right">
+        <div class="list-right-container">
+        <ul data-am-widget="gallery"
+            class="categoryTpl am-category am-avg-sm-3 am-avg-md-3 am-avg-lg-4 am-no-layout">
+
+            <li>
+                <div class="am-category-item">
+                    <a href="" class="">
+                        <img src="/static/shop/img/test.png">
+                        <h3 class="am-category-title"></h3>
+                    </a>
+                </div>
+            </li>
+
+        </ul>
+
+        <!-- 子分类下的商品 -->
+        <div style="border-bottom: 1px solid #ddd; box-shadow: 0px 2px 10px #ddd;"></div>
+        <ul data-am-widget="gallery"
+            class="categoryGoodsTpl am-goods am-avg-sm-2 am-avg-md-2 am-avg-lg-4 am-no-layout">
+
+            <li>
+                <div class="am-goods-item">
+                    <a href="" class="">
+                        <img src="/static/shop/img/test.png">
+                        <h3 class="am-goods-title">商品</h3>
+                        <p style="color: #ff5500;">￥23.55</p>
+                    </a>
+                </div>
+            </li>
+
+        </ul>
+        </div>
+    </div>
+</div>
+
+<!-- template模版 -->
+<script id="categoryTpl" type="text/html">
+    <li>
+        <div class="am-category-item"  onclick="getCategoryGoods({{p.id}}, 1, 1)">
+            <a class="">
+                <img src="{{p.thumb}}">
+                <h3 class="am-category-title">全部"{{p.title}}"商品</h3>
+            </a>
+        </div>
+    </li>
+    {{if code == 1}}
+    {{each data}}
+    <li>
+        <div class="am-category-item categoryChildItem" onclick="getCategoryGoods({{$value.id}},0, 1)">
+            <a >
+                <img src="{{$value.thumb}}">
+                <h3 class="am-category-title">{{$value.title}}</h3>
+            </a>
+        </div>
+    </li>
+    {{/each}}
+    {{else}}
+    {{/if}}
+</script>
+
+<!--分类下的商品-->
+<script id="categoryGoodsTpl" type="text/html">
+    {{each $data}}
+    <li>
+        <div class="am-goods-item">
+            <a href="/goods/{{$value.id}}">
+                <img src="{{$value.thumb}}">
+                <h3 class="am-goods-title">{{$value.name}}</h3>
+            </a>
+        </div>
+    </li>
+    {{/each}}
+</script>
+
+<script type="text/javascript">
+    var localCid = 0;
+    var localCgall = 1;
+    var localPage = 1;
+    $(function(){
+        //  0级分类点击
+        $(".category-list").find('li').click(function(){
+            $(this).addClass("current").siblings().removeClass("current");
+            //  加载子分类
+            var itemid = $(this).attr("itemid");
+            var itemthumb = $(this).attr("itemthumb");
+            var itemtitle = $(this).attr("itemtitle");
+            ajaxPost("/post",{action:"getcategorybypid",pid:itemid},function(res){
+                res.p = {id:itemid,thumb:itemthumb,title:itemtitle};
+                $(".categoryTpl").html( template("categoryTpl", res ) );
+                $(".categoryTpl").find('div:first').click();
+            });
+        });
+        $(".category-list").find('li:first').click();
+        //  滚动条监听
+        $(window).scroll(function() {
+            var scrollTop = $(this).scrollTop();
+            var scrollHeight = $(document).height();
+            var windowHeight = $(this).height();
+            //clog("scrollTop:" + scrollTop + ",scrollHeight:"+scrollHeight+",windowHeight:"+windowHeight);
+            if (scrollTop + windowHeight == scrollHeight) {
+                getCategoryGoods( localCid, localCgall, localPage++ );
+                clog( localPage++ );
+            }
+        });
+    });
+    function getCategoryGoods(id,cgall,page){
+        if( page == 1 ){
+            $(".categoryGoodsTpl").html("正在加载 。。。");
+        }
+        localCid = id;
+        localCgall = cgall;
+        localPage = page;
+        ajaxPost("/post",{action:"getcategorygoods",cid:localCid,cgall:localCgall,page:localPage},function(res){
+            if( res.code != 1 ){
+                return tipShow("数据获取异常,错误信息："+res.msg);
+            }
+            if( res.data.currentPage == 1 ){
+                $(".categoryGoodsTpl").html( template("categoryGoodsTpl", res.data.items ) );
+            } else {
+                $(".categoryGoodsTpl").append( template("categoryGoodsTpl", res.data.items ) );
+            }
+            if( res.data.hasMore == false ){
+                $(".categoryGoodsTpl").append("已加载完所有商品");
+            }
+        });
+    }
+    function listScroll(){
+        $(".list-right").scroll();
+    }
+</script>
+
+<div th:include="/shop/common::footer"></div>
+<div th:include="/shop/common::foot"></div>
+
+</body>
+</html>

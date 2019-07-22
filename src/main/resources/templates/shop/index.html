@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title th:text="'首页 - ' + ${webName}"></title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <head th:include="/shop/common::head"></head>
+
+    <script>
+        $(function () {
+            var elm = $('#shortbar');
+            var startPos = $(elm).offset().top;
+            $.event.add(window, "scroll", function () {
+                var p = $(window).scrollTop();
+                if (p > startPos) {
+                    elm.addClass('sortbar-fixed');
+                } else {
+                    elm.removeClass('sortbar-fixed');
+                }
+            });
+        });
+    </script>
+
+</head>
+<body>
+<!--图片轮换-->
+<div class="am-slider am-slider-default" data-am-flexslider id="demo-slider-0" style="position: relative;">
+    <header data-am-widget="header" class="am-header am-header-default tm-head" id="shortbar">
+        <div class="am-header-left am-header-nav">
+            <a href="city.html" class="">
+                <img src="/static/shop/img/city.png"/>
+                <p style="font-size: 12px; margin-top: -35px;">重庆</p>
+            </a>
+        </div>
+        <h1 class="am-header-title1">
+            <div class="search-box">
+                <input type="text" name="title" class="index-search" placeholder="寻找你喜欢的商品......"/>
+                <input type="submit" value="" class="search-icon"/>
+            </div>
+        </h1>
+        <div class="am-header-right am-header-nav">
+
+            <a href="" class="">
+                <img src="/static/shop/img/sao.png"/>
+                <p style="font-size: 12px; margin-top: -35px;">扫一扫</p>
+            </a>
+        </div>
+    </header>
+    <ul class="am-slides">
+        <li><img src="/static/shop/img/banner.png"/></li>
+        <li><img src="/static/shop/img/banner.png"/></li>
+        <li><img src="/static/shop/img/banner.png"/></li>
+    </ul>
+</div>
+<!--导航-->
+<ul class="sq-nav">
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon.png"/>
+                <p>新品</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon1.png"/>
+                <p>特价</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon2.png"/>
+                <p>预定</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon3.png"/>
+                <p>积分</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon4.png"/>
+                <p>众筹</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon5.png"/>
+                <p>白条</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon6.png"/>
+                <p>头条</p>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="am-gallery-item">
+            <a href="/category" class="">
+                <img src="/static/shop/img/icon7.png"/>
+                <p>分类</p>
+            </a>
+        </div>
+    </li>
+</ul>
+<!--限时秒杀 -->
+<div class="sq-title">
+    <i class="am-icon-volume-up"></i>
+    <div class="fnTimeCountDown" data-end-old="2019/07/15 18:45:13" th:attr="data-end=${msEndTime}">
+        限时秒杀：
+        <span class="hour">00</span>
+        <strong>:</strong>
+        <span class="mini">00</span>
+        <strong>:</strong>
+        <span class="sec">00</span>
+    </div>
+    <script type="text/javascript">
+        $(".fnTimeCountDown").fnTimeCountDown("2019/05/21 23:45:13");
+    </script>
+</div>
+<ul data-am-widget="gallery" class="am-gallery pro-list am-avg-sm-3 am-avg-md-3 am-avg-lg-4 am-gallery-default">
+    <li th:each="goods:${recomGoods}">
+        <div class="am-gallery-item">
+            <a href="/goods/0" class="">
+                <img th:src="${goods.thumb}" style="max-height: 98px; "/>
+                <h3 class="am-gallery-title" th:text="${goods.name}">猪骨头棒新鲜生鲜肉制品猪大骨头筒骨熬汤佳品500g</h3>
+                <div class="am-gallery-desc" th:text=" '￥' + ${goods.price}">￥52</div>
+            </a>
+        </div>
+    </li>
+</ul>
+<!-- 特色专区-->
+<div class="sq-title">
+    <img src="/static/shop/img/ts.png" width="24"/>
+    特色专区
+</div>
+<ul data-am-widget="gallery" class="am-gallery pro-list am-avg-sm-3 am-avg-md-3 am-avg-lg-4 am-gallery-default">
+    <li th:each="goods:${recomGoods}">
+        <div class="am-gallery-item">
+            <a href="/goods/0" class="">
+                <img th:src="${goods.thumb}" style="max-height: 98px; "/>
+                <h3 class="am-gallery-title" th:text="${goods.name}">猪骨头棒新鲜生鲜肉制品猪大骨头筒骨熬汤佳品500g</h3>
+                <div class="am-gallery-desc" th:text=" '￥' + ${goods.price}">￥52</div>
+            </a>
+        </div>
+    </li>
+</ul>
+<!-- 精品专区-->
+<div class="sq-title">
+    <img src="/static/shop/img/ts.png" width="24"/>
+    精品专区
+</div>
+<ul data-am-widget="gallery" class="am-gallery pro-list am-avg-sm-3 am-avg-md-3 am-avg-lg-4 am-gallery-default">
+    <li th:each="goods:${recomGoods}">
+        <div class="am-gallery-item">
+            <a href="/goods/0" class="">
+                <img th:src="${goods.thumb}" style="max-height: 98px; "/>
+                <h3 class="am-gallery-title" th:text="${goods.name}">猪骨头棒新鲜生鲜肉制品猪大骨头筒骨熬汤佳品500g</h3>
+                <div class="am-gallery-desc" th:text=" '￥' + ${goods.price}">￥52</div>
+            </a>
+        </div>
+    </li>
+</ul>
+<!-- 便民-->
+<div class="sq-title">
+    <img src="/static/shop/img/bm.png" width="24"/>
+    便民服务
+</div>
+<ul class="yule">
+    <li>
+        <a href="#">
+            <img src="/static/shop/img/bm_test.jpg">
+            <div style="width: 70%; float: left;">
+                <h3 class="title">青山湖区熊氏锁业</h3>
+                <p class="intro">开、修、换各式民用锁具（各类普通房门、防盗门、车库门、密码箱</p>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="/static/shop/img/bm_test.jpg">
+            <div style="width: 70%; float: left;">
+                <h3 class="title">青山湖区熊氏锁业</h3>
+                <p class="intro">开、修、换各式民用锁具（各类普通房门、防盗门、车库门、密码箱</p>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="/static/shop/img/bm_test.jpg">
+            <div style="width: 70%; float: left;">
+                <h3 class="title">青山湖区熊氏锁业</h3>
+                <p class="intro">开、修、换各式民用锁具（各类普通房门、防盗门、车库门、密码箱</p>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="/static/shop/img/bm_test.jpg">
+            <div style="width: 70%; float: left;">
+                <h3 class="title">青山湖区熊氏锁业</h3>
+                <p class="intro">开、修、换各式民用锁具（各类普通房门、防盗门、车库门、密码箱</p>
+            </div>
+        </a>
+    </li>
+</ul>
+
+<div th:include="/shop/common::footer"></div>
+<div th:include="/shop/common::foot"></div>
+
+</body>
+</html>
