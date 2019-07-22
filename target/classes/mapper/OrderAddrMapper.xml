@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tfotu.shop.dao.OrderAddrMapper">
+
+    <!-- 未定义resultMap,启用了驼峰转换 不是特别的不用 -->
+
+    <select id="getAll" resultType="com.tfotu.shop.entity.OrderAddr">
+        SELECT id,oid,uid,uaid,consignee,mobile,address
+        FROM `order_addr`
+        ORDER BY id DESC
+    </select>
+
+    <select id="getById" resultType="com.tfotu.shop.entity.OrderAddr">
+        SELECT id,oid,uid,uaid,consignee,mobile,address
+        FROM `order_addr`
+        WHERE id = #{id}
+        ORDER BY id DESC
+    </select>
+    <select id="getByOid" resultType="com.tfotu.shop.entity.OrderAddr">
+        SELECT id,oid,uid,uaid,consignee,mobile,address
+        FROM `order_addr`
+        WHERE oid = #{oid}
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id"
+            parameterType="com.tfotu.shop.entity.OrderAddr">
+        INSERT INTO
+        `order_addr`(oid,uid,uaid,consignee,mobile,address)
+        VALUES
+        (#{oid},#{uid},#{uaid},#{consignee},#{mobile},#{address})
+    </insert>
+    
+    <update id="update" parameterType="com.tfotu.shop.entity.OrderAddr">
+        UPDATE `order_addr`
+        <set>
+            <if test="oid!=null">oid=#{oid},</if>
+            <if test="uid!=null">uid=#{uid},</if>
+            <if test="uaid!=null">uaid=#{uaid},</if>
+            <if test="consignee!=null">consignee=#{consignee},</if>
+            <if test="mobile!=null">mobile=#{mobile},</if>
+            <if test="address!=null">uid=#{address},</if>
+            <if test="ctime!=null">ctime=#{ctime}</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM `order_addr` WHERE `oid`=#{oid}
+    </delete>
+</mapper>
